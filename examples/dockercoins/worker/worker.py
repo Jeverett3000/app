@@ -26,8 +26,7 @@ def hash_bytes(data):
     r = requests.post("http://hasher/",
                       data=data,
                       headers={"Content-Type": "application/octet-stream"})
-    hex_hash = r.text
-    return hex_hash
+    return r.text
 
 
 def work_loop(interval=1):
@@ -35,8 +34,7 @@ def work_loop(interval=1):
     loops_done = 0
     while True:
         if time.time() > deadline:
-            log.info("{} units of work done, updating hash counter"
-                     .format(loops_done))
+            log.info(f"{loops_done} units of work done, updating hash counter")
             redis.incrby("hashes", loops_done)
             loops_done = 0
             deadline = time.time() + interval
@@ -52,7 +50,7 @@ def work_once():
     if not hex_hash.startswith('0'):
         log.debug("No coin found")
         return
-    log.info("Coin found: {}...".format(hex_hash[:8]))
+    log.info(f"Coin found: {hex_hash[:8]}...")
     created = redis.hset("wallet", hex_hash, random_bytes)
     if not created:
         log.info("We already had that coin")
